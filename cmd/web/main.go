@@ -7,6 +7,7 @@ func main() {
 	// connect to the database
 
 	// create sessions
+
 	// able to login to the account
 
 	// create channels
