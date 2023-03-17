@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
+	"github.com/gomodule/redigo/redis"
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -19,7 +21,8 @@ func main() {
 	db := initDB()
 	db.Ping()
 
-	// create sessions
+	// create sessions to connect to redis
+	session := initSession()
 
 	// able to login to the account
 
@@ -34,6 +37,8 @@ func main() {
 	// listen for web connections
 }
 
+// ---------- ---------- ----------
+// << connect to the database >>
 // *sql.DB 返回資料庫
 func initDB() *sql.DB {
 	conn := connectToDB()
@@ -43,6 +48,7 @@ func initDB() *sql.DB {
 	return conn
 }
 
+// from initDB
 func connectToDB() *sql.DB {
 	// 嘗試連接到資料庫固定次數，如果連接不到，就會死
 
@@ -78,7 +84,7 @@ func connectToDB() *sql.DB {
 
 }
 
-// openDB function
+// from connectToDB
 // 連接dsn 是一個 string, 返回 sql.DB 和 error
 func openDB(dsn string) (*sql.DB, error) {
 	// 確保多次嘗試連接到資料庫
@@ -103,4 +109,37 @@ func openDB(dsn string) (*sql.DB, error) {
 
 	return db, nil
 
+}
+
+// ---------- ---------- ----------
+// << create sessions to connect to redis >>
+
+// Session
+func initSession() *scs.SessionManager { // scs from "github.com/alexedwards/scs/v2"
+
+	// set up session
+
+}
+
+// Redis
+func initRedis() *redis.Pool { // redis 已經從 docker compose 連線了
+
+	// 創建變數，指向 redis.Pool
+	// redis.Pool是一個用於管理Redis連接池的Go語言庫。
+	// Redis是一個快速、高效的內存鍵值數據庫，
+	// 許多應用程序都使用Redis來存儲和查詢數據。
+	// 然而，每次與Redis建立連接都需要額外的開銷，包括網絡開銷和認證開銷。
+	// 這導致了一些性能問題，因此通常需要對Redis連接進行池化以減少開銷。
+	redisPool := &redis.Pool{
+		// 設置MaxIdle參數時需要根據應用程序的實際情況進行調整，
+		// 以確保系統在運行期間可以維持穩定的性能和資源使用率。
+		MaxIdle: 10, // default 預設值
+		// 使用Redis Pool庫時，Dial是一個重要的函數，用於創建和初始化Redis連接。
+		// Dial函數需要指定Redis服務器的地址和端口，並返回一個Redis連接和錯誤信息。
+		Dial: func() (redis.Conn, error) { // 撥打讀取伺服器
+			return redis.Dial("tcp", os.Getenv("REDIS"))
+		},
+	}
+
+	return redisPool
 }
