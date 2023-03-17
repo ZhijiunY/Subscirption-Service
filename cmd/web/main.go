@@ -71,6 +71,7 @@ func connectToDB() *sql.DB {
 		// 否則
 		log.Print("Backing off for 1 seconds")
 		time.Sleep(1 * time.Second)
+		// 增加 counts++
 		counts++
 		continue
 	}
