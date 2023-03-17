@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/gomodule/redigo/redis"
 	_ "github.com/jackc/pgconn"
@@ -118,6 +120,20 @@ func openDB(dsn string) (*sql.DB, error) {
 func initSession() *scs.SessionManager { // scs from "github.com/alexedwards/scs/v2"
 
 	// set up session
+	// 創建新的Session管理器的函數
+	session := scs.New()
+
+	// store 存儲庫
+	session.Store = redisstore.New(initRedis())
+	// session.Lifetime 可以用來控制會話的有效期限，以防止資源的過度浪費和系統的不穩定運行。
+	session.Lifetime = 24 * time.Hour
+	// 控制會話（session）的 Cookie 是否應該在用戶端的瀏覽器上持續存在，即使瀏覽器被關閉或重新啟動。
+	// 希望用戶端的瀏覽器在關閉後能夠自動重新登錄，可以將 session.Cookie.Persist 設定為 true
+	session.Cookie.Persist = true
+	// 是一個枚舉值，表示同站點請求時瀏覽器應該如何處理 Cookie 的 SameSite 屬性。
+	session.Cookie.SameSite = http.SameSiteDefaultMode
+	// 是一個用於控制瀏覽器是否只在使用安全協議（HTTPS）時發送會話（session）的 Cookie 的屬性。
+	session.Cookie.Secure = true
 
 }
 
