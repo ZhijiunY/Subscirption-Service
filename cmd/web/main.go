@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
@@ -21,18 +22,31 @@ func main() {
 
 	// connect to the database
 	db := initDB()
-	db.Ping()
 
 	// create sessions to connect to redis
 	session := initSession()
+
+	// create loggers
+	// 訊息日誌，紀錄：日誌、時間
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	// 錯誤日誌，紀錄： 日治、時間、位置
+	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// able to login to the account
 
 	// create channels
 
 	// create waitgroup
+	wg := sync.WaitGroup{}
 
 	// set up the application config
+	app := Config{
+		Session:  session,
+		DB:       db,
+		InfoLog:  infoLog,
+		ErrorLog: errorLog,
+		Wait:     &wg,
+	}
 
 	// set up mail
 
@@ -162,3 +176,6 @@ func initRedis() *redis.Pool { // redis 已經從 docker compose 連線了
 
 // ---------- ---------- ----------
 // << set up the application config >>
+
+// ---------- ---------- ----------
+// << create loggers >>
