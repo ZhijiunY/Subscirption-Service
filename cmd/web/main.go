@@ -159,3 +159,6 @@ func initRedis() *redis.Pool { // redis 已經從 docker compose 連線了
 
 	return redisPool
 }
+
+// ---------- ---------- ----------
+// << set up the application config >>
