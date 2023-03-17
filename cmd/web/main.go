@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,7 +17,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-const webPort = "80"
+const webPort = "8888"
 
 func main() {
 
@@ -51,6 +52,7 @@ func main() {
 	// set up mail
 
 	// listen for web connections
+	app.serve()
 }
 
 // ---------- ---------- ----------
@@ -149,6 +151,7 @@ func initSession() *scs.SessionManager { // scs from "github.com/alexedwards/scs
 	// 是一個用於控制瀏覽器是否只在使用安全協議（HTTPS）時發送會話（session）的 Cookie 的屬性。
 	session.Cookie.Secure = true
 
+	return session
 }
 
 // Redis
@@ -179,3 +182,19 @@ func initRedis() *redis.Pool { // redis 已經從 docker compose 連線了
 
 // ---------- ---------- ----------
 // << create loggers >>
+
+// ---------- ---------- ----------
+// << listen for web connections >>
+func (app *Config) serve() {
+	// start http server
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%s", webPort),
+		Handler: app.routes(),
+	}
+
+	app.InfoLog.Println("Starting web server ...")
+	err := srv.ListenAndServe()
+	if err != nil {
+		log.Panic(err)
+	}
+}
