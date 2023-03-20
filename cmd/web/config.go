@@ -5,6 +5,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/ZhijiunY_subscription_service/data"
 	"github.com/alexedwards/scs/v2"
 )
 
@@ -15,4 +16,5 @@ type Config struct {
 	InfoLog  *log.Logger         // 資訊日誌，將內容寫入主控台或日誌欓
 	ErrorLog *log.Logger         // 錯誤日誌記錄器
 	Wait     *sync.WaitGroup
+	Models   data.Models
 }
