@@ -39,8 +39,27 @@ type Message struct {
 }
 
 // a function to listen for messages on the MailerChan
+// 監聽郵件
+// 異步
+func (app *Config) listenForMail() {
+	for {
+		// 監聽不同 Chan 做不同事
+		select {
+		case msg := <-app.Mailer.MailerChan:
+			// 發送 email 到後台
+			go app.Mailer.sendMail(msg, app.Mailer.ErrorChan)
+		case err := <-app.Mailer.ErrorChan:
+			app.ErrorLog.Println(err)
+		// 希望在後台停止處理郵件
+		case <-app.Mailer.DoneChan:
+			return
+		}
+	}
+}
 
 func (m *Mail) sendMail(msg Message, errorChan chan error) {
+	defer m.Wait.Done()
+
 	if msg.Template == "" {
 		msg.Template = "mail"
 	}

@@ -17,4 +17,5 @@ type Config struct {
 	ErrorLog *log.Logger         // 錯誤日誌記錄器
 	Wait     *sync.WaitGroup
 	Models   data.Models
+	Mailer   Mail
 }
