@@ -78,6 +78,8 @@ func initDB() *sql.DB {
 }
 
 // from initDB
+// connectToDB tries to connect to postgres, and backs off until a connection
+// is made, or we have not connected after 10 tries
 func connectToDB() *sql.DB {
 	// 嘗試連接到資料庫固定次數，如果連接不到，就會死
 
@@ -114,6 +116,8 @@ func connectToDB() *sql.DB {
 }
 
 // from connectToDB
+// openDB opens a connection to Postgres, using a DSN read
+// from the environment variable DSN
 // 連接dsn 是一個 string, 返回 sql.DB 和 error
 func openDB(dsn string) (*sql.DB, error) {
 	// 確保多次嘗試連接到資料庫
@@ -229,7 +233,15 @@ func (app *Config) shutdown() {
 	// block until waitgroup is empty
 	app.Wait.Wait()
 
+	// 在發送完email後發生
+	app.Mailer.DoneChan <- true
+
 	app.InfoLog.Println("closing channels and shutting down application...")
+
+	// 關閉 Chan
+	close(app.Mailer.MailerChan)
+	close(app.Mailer.ErrorChan)
+	close(app.Mailer.DoneChan)
 }
 
 // ---------- ---------- ----------
