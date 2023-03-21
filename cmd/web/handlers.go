@@ -38,7 +38,15 @@ func (app *Config) PostLoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 如果有效密碼為假，如果檢查失敗，將發送電子郵件通知
 	if !validPassword {
+		msg := Message{
+			To:      email,
+			Subject: "Failed log in attempt",
+			Data:    "Invalid login attempt!",
+		}
+
+		app.sendEmail(msg)
 		app.Session.Put(r.Context(), "error", "Invalid credentials.")
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
