@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -141,6 +142,8 @@ func openDB(dsn string) (*sql.DB, error) {
 
 // Session
 func initSession() *scs.SessionManager { // scs from "github.com/alexedwards/scs/v2"
+	// 註冊數據
+	gob.Register(data.User{})
 
 	// set up session
 	// 創建新的Session管理器的函數
