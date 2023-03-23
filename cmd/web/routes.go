@@ -26,6 +26,7 @@ func (app *Config) routes() http.Handler {
 	mux.Get("/activate", app.ActivateAccount)
 
 	mux.Get("/plans", app.ChooseSubscription)
+	mux.Get("/subscribe", app.SubscribeToPlan)
 
 	// 同步
 	// mux.Get("/test-email", func(w http.ResponseWriter, r *http.Request) {
