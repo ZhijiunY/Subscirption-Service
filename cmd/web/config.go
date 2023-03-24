@@ -11,11 +11,13 @@ import (
 
 // 用於app上的接收器
 type Config struct {
-	Session  *scs.SessionManager // Session管理
-	DB       *sql.DB             // 資料庫
-	InfoLog  *log.Logger         // 資訊日誌，將內容寫入主控台或日誌欓
-	ErrorLog *log.Logger         // 錯誤日誌記錄器
-	Wait     *sync.WaitGroup
-	Models   data.Models
-	Mailer   Mail
+	Session       *scs.SessionManager // Session管理
+	DB            *sql.DB             // 資料庫
+	InfoLog       *log.Logger         // 資訊日誌，將內容寫入主控台或日誌欓
+	ErrorLog      *log.Logger         // 錯誤日誌記錄器
+	Wait          *sync.WaitGroup
+	Models        data.Models
+	Mailer        Mail
+	ErrorChan     chan error
+	ErrorChanDone chan bool
 }
