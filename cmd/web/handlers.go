@@ -173,7 +173,10 @@ func (app *Config) SubscribeToPlan(w http.ResponseWriter, r *http.Request) {
 	// get the id of the plan that is chosen
 	id := r.URL.Query().Get("id")
 
-	planID, _ := strconv.Atoi(id)
+	planID, err := strconv.Atoi(id)
+	if err != nil {
+		app.ErrorLog.Println("Error getting planid:", err)
+	}
 
 	// get the plan from the database
 	plan, err := app.Models.Plan.GetOne(planID)
@@ -286,6 +289,7 @@ func (app *Config) generateManual(u data.User, plan *data.Plan) *gofpdf.Fpdf {
 }
 
 func (app *Config) getInvoice(u data.User, plan *data.Plan) (string, error) {
+	app.InfoLog.Println("amount is", plan.PlanAmountFormatted)
 	return plan.PlanAmountFormatted, nil
 }
 
